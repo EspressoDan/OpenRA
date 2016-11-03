@@ -15,7 +15,7 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.Common.Traits
 {
-	public class PowerInfo : UpgradableTraitInfo
+	public class PowerInfo : UpgradableTraitInfo, Requires<UpgradeManagerInfo>
 	{
 		[Desc("If negative, it will drain power. If positive, it will provide power.")]
 		public readonly int Amount = 0;
@@ -29,6 +29,8 @@ namespace OpenRA.Mods.Common.Traits
 
 		public PowerManager PlayerPower { get; private set; }
 
+        readonly UpgradeManager upgradeManager;
+
 		public int GetEnabledPower()
 		{
 			return Util.ApplyPercentageModifiers(Info.Amount, powerModifiers.Value.Select(m => m.GetPowerModifier()));
@@ -41,8 +43,21 @@ namespace OpenRA.Mods.Common.Traits
 			powerModifiers = Exts.Lazy(() => self.TraitsImplementing<IPowerModifier>().ToArray());
 		}
 
-		protected override void UpgradeEnabled(Actor self) { PlayerPower.UpdateActor(self); }
-		protected override void UpgradeDisabled(Actor self) { PlayerPower.UpdateActor(self); }
+		protected override void UpgradeEnabled(Actor self)
+        {
+            upgradeManager.GrantUpgrade(self, "powered", this);
+            Game.Debug("Power UpgradeEnabled");
+
+            PlayerPower.UpdateActor(self);
+        }
+
+		protected override void UpgradeDisabled(Actor self)
+        {
+            upgradeManager.RevokeUpgrade(self, "powered", this);
+            Game.Debug("Power UpgradeDisabled");
+            PlayerPower.UpdateActor(self);
+        }
+
 		public void AddedToWorld(Actor self) { PlayerPower.UpdateActor(self); }
 		public void RemovedFromWorld(Actor self) { PlayerPower.RemoveActor(self); }
 		public void OnOwnerChanged(Actor self, Player oldOwner, Player newOwner)

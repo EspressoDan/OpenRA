@@ -497,7 +497,7 @@ DOME:
 		Description: Provides an overview\nof the battlefield.\nCan detect cloaked units.\n  Requires power to operate.
 	Valued:
 		Cost: 1800
-	Tooltip:
+    Tooltip:
 		Name: Radar Dome
 	Building:
 		Footprint: xx xx
@@ -520,10 +520,10 @@ DOME:
 	InfiltrateForExploration:
 	DetectCloaked:
 		Range: 10c0
+		UpgradeTypes: powered
 	RenderDetectionCircle:
 	Power:
 		Amount: -40
-	ProvidesPrerequisite@buildingname:
 
 PBOX:
 	Inherits: ^Defense
